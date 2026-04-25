@@ -8,6 +8,7 @@
   <meta name="apple-mobile-web-app-title" content="Card Tracker" />
   <meta name="theme-color" content="#0f0f0f" />
   <title>Card Tracker</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
@@ -28,7 +29,6 @@
       flex-direction: column;
     }
 
-    /* Tabs */
     .tabs {
       display: flex;
       gap: 4px;
@@ -49,28 +49,20 @@
       cursor: pointer;
       transition: background 0.2s, color 0.2s;
     }
-    .tab.active {
-      background: #2a2a2a;
-      color: #f0f0f0;
-    }
+    .tab.active { background: #2a2a2a; color: #f0f0f0; }
 
-    /* Screen */
     .screen { display: none; }
     .screen.active { display: block; }
 
-    /* Today */
     .today-label { font-size: 13px; color: #555; margin-bottom: 4px; }
     .today-date { font-size: 20px; font-weight: 600; color: #f0f0f0; margin-bottom: 28px; }
 
     .use-label {
-      font-size: 11px;
-      color: #555;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
+      font-size: 11px; color: #555;
+      text-transform: uppercase; letter-spacing: 0.1em;
       margin-bottom: 14px;
     }
 
-    /* Card visual */
     .card-visual {
       width: 100%;
       aspect-ratio: 1.586;
@@ -87,16 +79,14 @@
     .card-visual::before {
       content: '';
       position: absolute;
-      width: 260px; height: 260px;
-      border-radius: 50%;
+      width: 260px; height: 260px; border-radius: 50%;
       top: -80px; right: -60px;
       background: rgba(255,255,255,0.07);
     }
     .card-visual::after {
       content: '';
       position: absolute;
-      width: 180px; height: 180px;
-      border-radius: 50%;
+      width: 180px; height: 180px; border-radius: 50%;
       bottom: -50px; right: 60px;
       background: rgba(255,255,255,0.05);
     }
@@ -113,36 +103,30 @@
     .card-field-label { font-size: 10px; color: rgba(255,255,255,0.4); margin-bottom: 3px; }
     .card-field-value { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.85); }
 
-    /* Card name */
     .card-name { font-size: 26px; font-weight: 600; color: #f0f0f0; margin-bottom: 4px; }
     .card-sub { font-size: 14px; color: #555; margin-bottom: 20px; }
 
-    /* Alt badge */
     .alt-badge {
       display: flex; align-items: center; gap: 8px;
       padding: 10px 14px;
       background: #1a1a1a;
       border: 0.5px solid #2a2a2a;
       border-radius: 12px;
-      font-size: 13px;
-      color: #888;
+      font-size: 13px; color: #888;
       margin-bottom: 12px;
     }
     .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 
-    /* Sub note */
     .sub-note {
       display: flex; align-items: center; gap: 8px;
       padding: 10px 14px;
       background: #1a1a1a;
       border: 0.5px solid #2a2a2a;
       border-radius: 12px;
-      font-size: 13px;
-      color: #666;
+      font-size: 13px; color: #666;
     }
     .sub-note strong { color: #888; font-weight: 500; }
 
-    /* Schedule */
     .schedule-label { font-size: 13px; color: #555; margin-bottom: 16px; }
 
     .range-list { display: flex; flex-direction: column; gap: 10px; }
@@ -152,7 +136,6 @@
       background: #1a1a1a;
       border: 0.5px solid #2a2a2a;
       border-radius: 14px;
-      transition: border-color 0.2s;
     }
     .range-pill.today { border-width: 1px; }
     .pill-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
@@ -161,10 +144,8 @@
     .pill-dates { font-size: 12px; color: #555; margin-top: 2px; }
     .today-badge {
       font-size: 11px; font-weight: 500;
-      padding: 3px 9px;
-      border-radius: 20px;
-      background: #1f2d1f;
-      color: #6fcf6f;
+      padding: 3px 9px; border-radius: 20px;
+      background: #1f2d1f; color: #6fcf6f;
     }
 
     .section-sep {
@@ -173,7 +154,6 @@
       margin: 20px 0 10px;
     }
 
-    /* Fixed pill */
     .fixed-pill {
       display: flex; align-items: center; gap: 14px;
       padding: 14px 16px;
@@ -193,7 +173,6 @@
     <button class="tab" onclick="showTab('schedule')">Schedule</button>
   </div>
 
-  <!-- TODAY -->
   <div class="screen active" id="screen-today">
     <p class="today-label">Today is</p>
     <p class="today-date" id="date-display"></p>
@@ -233,7 +212,6 @@
     </div>
   </div>
 
-  <!-- SCHEDULE -->
   <div class="screen" id="screen-schedule">
     <p class="schedule-label">Date ranges — all months</p>
     <div class="range-list" id="range-list"></div>
@@ -248,12 +226,11 @@
   </div>
 
 </div>
-
 <script>
   const CARDS = [
-    { id:'vakif',        start:1,  end:8,  bank:'Vakıfbank', type:'Kredi Kartı', color:'#1D9E75', name:'Vakıfbank',        sub:'Days 1 → 8',              hasAlt:false },
-    { id:'garanti-biz',  start:8,  end:23, bank:'Garanti',   type:'Business',   color:'#185FA5', name:'Garanti Business', sub:'Days 8 → 23 · Primary',   hasAlt:true  },
-    { id:'garanti-gold', start:23, end:32, bank:'Garanti',   type:'Gold',       color:'#9B6B10', name:'Garanti Gold',     sub:'Days 23 → 1',             hasAlt:false },
+    { id:'vakif',        start:1,  end:8,  bank:'Vakıfbank', type:'Kredi Kartı', color:'#1D9E75', name:'Vakıfbank',        sub:'Days 1 → 8',            hasAlt:false },
+    { id:'garanti-biz',  start:8,  end:23, bank:'Garanti',   type:'Business',   color:'#185FA5', name:'Garanti Business', sub:'Days 8 → 23 · Primary', hasAlt:true  },
+    { id:'garanti-gold', start:23, end:32, bank:'Garanti',   type:'Gold',       color:'#9B6B10', name:'Garanti Gold',     sub:'Days 23 → 1',           hasAlt:false },
   ];
 
   const SCHEDULE = [
@@ -270,15 +247,14 @@
   }
 
   function showTab(tab) {
-    document.querySelectorAll('.tab').forEach((t, i) => {
-      t.classList.toggle('active', ['today','schedule'][i] === tab);
-    });
+    document.querySelectorAll('.tab').forEach((t, i) =>
+      t.classList.toggle('active', ['today','schedule'][i] === tab));
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('screen-' + tab).classList.add('active');
   }
 
-  const now   = new Date();
-  const day   = now.getDate();
+  const now    = new Date();
+  const day    = now.getDate();
   const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
   const DAYS   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 
