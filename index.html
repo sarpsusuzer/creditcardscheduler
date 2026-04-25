@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Card Tracker" />
+  <meta name="theme-color" content="#0f0f0f" />
+  <title>Card Tracker</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+      background: #0f0f0f;
+      color: #f0f0f0;
+      min-height: 100dvh;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+
+    .app {
+      max-width: 430px;
+      margin: 0 auto;
+      padding: 24px 20px 40px;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      background: #1a1a1a;
+      border-radius: 12px;
+      padding: 4px;
+      margin-bottom: 28px;
+    }
+    .tab {
+      flex: 1;
+      padding: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      border: none;
+      border-radius: 9px;
+      background: transparent;
+      color: #666;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    .tab.active {
+      background: #2a2a2a;
+      color: #f0f0f0;
+    }
+
+    /* Screen */
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    /* Today */
+    .today-label { font-size: 13px; color: #555; margin-bottom: 4px; }
+    .today-date { font-size: 20px; font-weight: 600; color: #f0f0f0; margin-bottom: 28px; }
+
+    .use-label {
+      font-size: 11px;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 14px;
+    }
+
+    /* Card visual */
+    .card-visual {
+      width: 100%;
+      aspect-ratio: 1.586;
+      border-radius: 20px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 24px;
+      transition: background 0.4s;
+    }
+    .card-visual::before {
+      content: '';
+      position: absolute;
+      width: 260px; height: 260px;
+      border-radius: 50%;
+      top: -80px; right: -60px;
+      background: rgba(255,255,255,0.07);
+    }
+    .card-visual::after {
+      content: '';
+      position: absolute;
+      width: 180px; height: 180px;
+      border-radius: 50%;
+      bottom: -50px; right: 60px;
+      background: rgba(255,255,255,0.05);
+    }
+    .card-top { display: flex; justify-content: space-between; align-items: flex-start; }
+    .card-bank { font-size: 16px; font-weight: 600; color: rgba(255,255,255,0.95); }
+    .card-type { font-size: 12px; color: rgba(255,255,255,0.55); margin-top: 2px; }
+    .card-chip {
+      width: 38px; height: 28px;
+      background: rgba(255,255,255,0.25);
+      border-radius: 5px;
+      border: 0.5px solid rgba(255,255,255,0.15);
+    }
+    .card-bottom { display: flex; justify-content: space-between; align-items: flex-end; }
+    .card-field-label { font-size: 10px; color: rgba(255,255,255,0.4); margin-bottom: 3px; }
+    .card-field-value { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.85); }
+
+    /* Card name */
+    .card-name { font-size: 26px; font-weight: 600; color: #f0f0f0; margin-bottom: 4px; }
+    .card-sub { font-size: 14px; color: #555; margin-bottom: 20px; }
+
+    /* Alt badge */
+    .alt-badge {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 14px;
+      background: #1a1a1a;
+      border: 0.5px solid #2a2a2a;
+      border-radius: 12px;
+      font-size: 13px;
+      color: #888;
+      margin-bottom: 12px;
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+    /* Sub note */
+    .sub-note {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 14px;
+      background: #1a1a1a;
+      border: 0.5px solid #2a2a2a;
+      border-radius: 12px;
+      font-size: 13px;
+      color: #666;
+    }
+    .sub-note strong { color: #888; font-weight: 500; }
+
+    /* Schedule */
+    .schedule-label { font-size: 13px; color: #555; margin-bottom: 16px; }
+
+    .range-list { display: flex; flex-direction: column; gap: 10px; }
+    .range-pill {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 16px;
+      background: #1a1a1a;
+      border: 0.5px solid #2a2a2a;
+      border-radius: 14px;
+      transition: border-color 0.2s;
+    }
+    .range-pill.today { border-width: 1px; }
+    .pill-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+    .pill-info { flex: 1; }
+    .pill-name { font-size: 15px; font-weight: 500; color: #f0f0f0; }
+    .pill-dates { font-size: 12px; color: #555; margin-top: 2px; }
+    .today-badge {
+      font-size: 11px; font-weight: 500;
+      padding: 3px 9px;
+      border-radius: 20px;
+      background: #1f2d1f;
+      color: #6fcf6f;
+    }
+
+    .section-sep {
+      font-size: 11px; color: #444;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      margin: 20px 0 10px;
+    }
+
+    /* Fixed pill */
+    .fixed-pill {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 16px;
+      background: #1a1a1a;
+      border: 0.5px solid #2a2a2a;
+      border-radius: 14px;
+    }
+    .fixed-pill .pill-name { color: #f0f0f0; font-size: 15px; font-weight: 500; }
+    .fixed-pill .pill-dates { font-size: 12px; color: #555; margin-top: 2px; }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('today')">Today</button>
+    <button class="tab" onclick="showTab('schedule')">Schedule</button>
+  </div>
+
+  <!-- TODAY -->
+  <div class="screen active" id="screen-today">
+    <p class="today-label">Today is</p>
+    <p class="today-date" id="date-display"></p>
+    <p class="use-label">Use this card</p>
+
+    <div class="card-visual" id="card-visual">
+      <div class="card-top">
+        <div>
+          <div class="card-bank" id="card-bank"></div>
+          <div class="card-type" id="card-type"></div>
+        </div>
+        <div class="card-chip"></div>
+      </div>
+      <div class="card-bottom">
+        <div>
+          <div class="card-field-label">Card holder</div>
+          <div class="card-field-value">Sarp Süsüzer</div>
+        </div>
+        <div>
+          <div class="card-field-label">Valid thru</div>
+          <div class="card-field-value">••/••</div>
+        </div>
+      </div>
+    </div>
+
+    <p class="card-name" id="card-name"></p>
+    <p class="card-sub" id="card-sub"></p>
+
+    <div id="alt-section" style="display:none" class="alt-badge">
+      <div class="dot" style="background:#888"></div>
+      Alternative: İşbank Business
+    </div>
+
+    <div class="sub-note">
+      <div class="dot" style="background:#444"></div>
+      Fixed subscriptions always use <strong>İşbank Business</strong>
+    </div>
+  </div>
+
+  <!-- SCHEDULE -->
+  <div class="screen" id="screen-schedule">
+    <p class="schedule-label">Date ranges — all months</p>
+    <div class="range-list" id="range-list"></div>
+    <p class="section-sep">Fixed</p>
+    <div class="fixed-pill">
+      <div class="pill-dot" style="background:#555"></div>
+      <div class="pill-info">
+        <div class="pill-name">İşbank Business</div>
+        <div class="pill-dates">Every month · subscriptions only</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const CARDS = [
+    { id:'vakif',        start:1,  end:8,  bank:'Vakıfbank', type:'Kredi Kartı', color:'#1D9E75', name:'Vakıfbank',        sub:'Days 1 → 8',              hasAlt:false },
+    { id:'garanti-biz',  start:8,  end:23, bank:'Garanti',   type:'Business',   color:'#185FA5', name:'Garanti Business', sub:'Days 8 → 23 · Primary',   hasAlt:true  },
+    { id:'garanti-gold', start:23, end:32, bank:'Garanti',   type:'Gold',       color:'#9B6B10', name:'Garanti Gold',     sub:'Days 23 → 1',             hasAlt:false },
+  ];
+
+  const SCHEDULE = [
+    { id:'vakif',        color:'#1D9E75', name:'Vakıfbank',        dates:'Days 1 → 8',              note:''            },
+    { id:'garanti-biz',  color:'#185FA5', name:'Garanti Business', dates:'Days 8 → 23',             note:'Primary'     },
+    { id:'isbank',       color:'#888888', name:'İşbank Business',  dates:'Days 8 → 23',             note:'Alternative' },
+    { id:'garanti-gold', color:'#9B6B10', name:'Garanti Gold',     dates:'Days 23 → 1 (next month)',note:''            },
+  ];
+
+  function getCard(day) {
+    if (day >= 1 && day < 8)  return CARDS[0];
+    if (day >= 8 && day < 23) return CARDS[1];
+    return CARDS[2];
+  }
+
+  function showTab(tab) {
+    document.querySelectorAll('.tab').forEach((t, i) => {
+      t.classList.toggle('active', ['today','schedule'][i] === tab);
+    });
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + tab).classList.add('active');
+  }
+
+  const now   = new Date();
+  const day   = now.getDate();
+  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const DAYS   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+  document.getElementById('date-display').textContent =
+    DAYS[now.getDay()] + ', ' + day + ' ' + MONTHS[now.getMonth()] + ' ' + now.getFullYear();
+
+  const card = getCard(day);
+  document.getElementById('card-visual').style.background = card.color;
+  document.getElementById('card-bank').textContent = card.bank;
+  document.getElementById('card-type').textContent = card.type;
+  document.getElementById('card-name').textContent = card.name;
+  document.getElementById('card-sub').textContent  = card.sub;
+  document.getElementById('alt-section').style.display = card.hasAlt ? 'flex' : 'none';
+
+  const list = document.getElementById('range-list');
+  SCHEDULE.forEach(r => {
+    const isToday = (r.id === card.id) || (r.id === 'isbank' && card.id === 'garanti-biz');
+    const div = document.createElement('div');
+    div.className = 'range-pill' + (isToday ? ' today' : '');
+    if (isToday) div.style.borderColor = r.color;
+    div.innerHTML = `
+      <div class="pill-dot" style="background:${r.color}"></div>
+      <div class="pill-info">
+        <div class="pill-name">${r.name}</div>
+        <div class="pill-dates">${r.dates}${r.note ? ' · ' + r.note : ''}</div>
+      </div>
+      ${isToday ? '<span class="today-badge">Today</span>' : ''}
+    `;
+    list.appendChild(div);
+  });
+</script>
+</body>
+</html>
